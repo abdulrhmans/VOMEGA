@@ -27,7 +27,7 @@ class export_product_with_inventory_file(models.TransientModel):
         #worksheet = workbook.add_worksheet('Products')
         worksheet = workbook.add_sheet('Products')
         
-        headers = ['id','categ_id/name','pos_categ_id/name','available_in_pos','name','barcode','default_code','unit_of_measurement','type','route_ids/id','purchase_ok','sale_ok','standard_price','lst_price','seller_ids/name/name']
+        headers = ['id','categ_id/name','pos_categ_id/name','available_in_pos','name','barcode','default_code','unit_of_measurement','type','route_ids/id','purchase_ok','sale_ok','standard_price','lst_price','seller_ids/name/name','image_medium']
         warehouse_ids = []
         product_obj = self.env['product.product']
         product_ids = products.ids
@@ -117,7 +117,8 @@ class export_product_with_inventory_file(models.TransientModel):
             
             worksheet.write(row_index, i, ','.join(seller_xml_ids))
             i +=1
-            
+            worksheet.write(row_index, i, None)
+            i +=1
             for warehouse_id in warehouse_ids:
                 worksheet.write(row_index, i, product_inventory_by_wh[warehouse_id].get(product.id,0.0))
                 #worksheet.write(row_index, i, product.with_context(warehouse=warehouse_id).qty_available)

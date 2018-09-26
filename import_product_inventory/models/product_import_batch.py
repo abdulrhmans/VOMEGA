@@ -3,8 +3,21 @@ from odoo import models,fields, api
 import json
 import logging
 from psycopg2 import IntegrityError
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+import base64
+import requests
+
 from odoo.tools.safe_eval import safe_eval
 _logger = logging.getLogger(__name__)
+
+request_header = {
+                "Accept-Language":"en-US,en;q=0.8",
+                "User-Agent":"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36",
+                "Connection":"keep-alive",
+                }
 
 class ProductImportBatch(models.Model):
     _name = 'product.import.batch'
@@ -31,7 +44,7 @@ class ProductImportBatch(models.Model):
         #To manange savepoiunt, we used ids instead of direct browsable record.
         ids = self.ids
         cr = self._cr
-        product_columns = ['id','categ_id/name','pos_categ_id/name','available_in_pos','name','barcode','default_code','unit_of_measurement','type','route_ids/id','purchase_ok','sale_ok','standard_price','lst_price','seller_ids/name/name']
+        product_columns = ['id','categ_id/name','pos_categ_id/name','available_in_pos','name','barcode','default_code','unit_of_measurement','type','route_ids/id','purchase_ok','sale_ok','standard_price','lst_price','seller_ids/name/name','image_medium']
         #category_mapping_dict = {}
         uom_mapping_dict = {}
         location_id_dict = {}
@@ -71,7 +84,7 @@ class ProductImportBatch(models.Model):
                     standard_price = product.get('standard_price')
                     lst_price = product.get('lst_price')
                     external_id = product.get('external_id','') or product.get('id','')
-                    
+                    image_medium = product.get('image_medium')
                     if category_name and category_name not in category_mapping_dict:
                         categories = category_name.split(" / ")
                         #categories = list(map(str.strip, categories))
@@ -107,12 +120,6 @@ class ProductImportBatch(models.Model):
                                     category_mapping_dict.update({exist_category.complete_name:exist_category.id})
                             else:
                                 category_mapping_dict.update({category_name:exist_category.id})
-                                   
-#                     if category_name not in category_mapping_dict:
-#                         category_exist = category_obj.search([('complete_name','=',category_name)],limit=1)
-#                         if not category_exist:
-#                             category_exist = category_obj.create({'name':category_name}) #,'category_code':category_code
-#                         category_mapping_dict.update({category_name:category_exist.id})
                     
                     category_id = category_mapping_dict.get(category_name)
                     
@@ -204,6 +211,15 @@ class ProductImportBatch(models.Model):
                         'lst_price' : lst_price,
                         'available_in_pos' : available_in_pos,
                         }
+                    if image_medium:
+                        parsed_url = urlparse(image_medium)
+                        if parsed_url.scheme:
+                            try:
+                                content = base64.b64encode(requests.get(image_medium,headers=request_header).content)
+                                product_vals['image_medium'] = content
+                            except Exception as e:
+                                pass
+                            
                     if pos_category_id:
                         product_vals.update({'pos_categ_id' : pos_category_id})
                     if route_ids:
