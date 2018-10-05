@@ -112,7 +112,8 @@ class export_product_with_inventory_file(models.TransientModel):
             for seller in product.seller_ids.mapped('name'):
                 if seller.id not in sellers_mapping_dict:
                     xml_rec = self.__ensure_xml_id_custom(seller)
-                    sellers_mapping_dict.update({seller.id: xml_rec and xml_rec[0][1] or False})
+                    if xml_rec:
+                        sellers_mapping_dict.update({seller.id: xml_rec and xml_rec[0][1] or False})
                 seller_xml_ids.append(sellers_mapping_dict.get(seller.id) or '')
             
             worksheet.write(row_index, i, ','.join(seller_xml_ids))
