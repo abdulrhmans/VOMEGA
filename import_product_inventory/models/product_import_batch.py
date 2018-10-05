@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models,fields, api
+from odoo import models,fields, api, tools
 import json
 import logging
 from psycopg2 import IntegrityError
@@ -238,6 +238,9 @@ class ProductImportBatch(models.Model):
                         cr.execute('SAVEPOINT model_batch_product_save')
                         if product_exist:
                             product_exist.write(product_vals)
+                            if product_vals.get('image_medium') and len(product_exist.product_tmpl_id.product_variant_ids)==1:
+                                resized_images = tools.image_get_resized_images(product_vals.get('image_medium'), return_big=True, avoid_resize_medium=True)
+                                product_exist.product_tmpl_id.write({'image_medium' : resized_images['image_medium'], 'image_small': resized_images['image_small'], 'image' : resized_images['image']})
                         else:
                             product_exist = product_obj.create(product_vals)
                         self.get_create_xml_id(product_exist, external_id)
@@ -250,6 +253,9 @@ class ProductImportBatch(models.Model):
                             product_vals.pop('barcode')
                             if product_exist:
                                 product_exist.write(product_vals)
+                                if product_vals.get('image_medium') and len(product_exist.product_tmpl_id.product_variant_ids)==1:
+                                    resized_images = tools.image_get_resized_images(product_vals.get('image_medium'), return_big=True, avoid_resize_medium=True)
+                                    product_exist.product_tmpl_id.write({'image_medium' : resized_images['image_medium'], 'image_small': resized_images['image_small'], 'image' : resized_images['image']})
                             else:
                                 product_exist = product_obj.create(product_vals)
                             self.get_create_xml_id(product_exist, external_id)
