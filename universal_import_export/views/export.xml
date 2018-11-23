@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="action_open_product_export_dialog" model="ir.actions.client">
+        <field name="name">Export Products</field>
+        <field name="tag">product_export_widget</field>
+        <field name="context" eval="{'model': 'product.product'}" />
+    </record>
+    <menuitem id="menu_action_open_product_export_dialog" name="Export Product" action="action_open_product_export_dialog" parent="stock.menu_stock_inventory_control" sequence="160"/>
+    
+    
+    <record id="action_open_product_import_dialog" model="ir.actions.client">
+        <field name="name">Import Products</field>
+        <field name="tag">import_product_widget</field>
+        <!-- <field name="context" eval="{'model': 'product.product'}" /> -->
+        <field name="params" eval="{'model': 'product.product', 'context': {'import_product_by_popup':True}}" />
+    </record>
+    <menuitem id="menu_action_open_product_import_dialog" name="Import Product" action="action_open_product_import_dialog" parent="stock.menu_stock_inventory_control" sequence="158"/>
+    
+    <template id="export_product_backend" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+        	<link rel="stylesheet" href="/universal_import_export/static/src/less/base_import_product.less"/>
+            <script type="text/javascript" src="/universal_import_export/static/src/js/data_export_product.js"></script>
+            <script type="text/javascript" src="/universal_import_export/static/src/js/import_action_product.js"></script>
+        </xpath>
+    </template>
+</odoo>

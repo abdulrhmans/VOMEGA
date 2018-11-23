@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_product_import_dynamic_batch,access.product_dynamic_import_batch,model_product_dynamic_import_batch,,1,1,1,1
+access_product_import_fail,access_product_import_fail,model_product_import_fail,,1,1,1,1
+access_product_import_success,access_product_import_success,model_product_import_success,,1,1,1,1
